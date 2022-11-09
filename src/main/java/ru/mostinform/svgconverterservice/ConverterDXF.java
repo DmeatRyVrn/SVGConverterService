@@ -66,6 +66,8 @@ public class ConverterDXF extends HttpServlet{
 
                 List<Detail> detailList = new ArrayList();
                 
+                Metal metal = new Metal();
+                
                 org.kabeja.parser.Parser dxfParser = org.kabeja.parser.ParserBuilder.createDefaultParser();
                 
                 String file = request.getParameter("file");
@@ -73,6 +75,8 @@ public class ConverterDXF extends HttpServlet{
                 Boolean onlyDetails = Boolean.valueOf(request.getParameter("onlydetails"));
                 
                 Boolean url = Boolean.valueOf(request.getParameter("url"));
+                
+                Boolean onlyMetal = Boolean.valueOf(request.getParameter("onlymetal"));
                 
                 
                 
@@ -252,6 +256,58 @@ public class ConverterDXF extends HttpServlet{
                             detailList.add(detail);
 
                         }
+                        else if (text.getFirstChild().getNodeValue().contains("@")){
+                            
+                            //Metal metal = new Metal();
+                            
+                            String meatalStr = text.getFirstChild().getNodeValue();
+                            
+                            int strIndex = 0;
+                            
+                            String value;
+                            
+                            value = meatalStr.substring(strIndex, meatalStr.indexOf("@"));
+                            
+                            strIndex=strIndex+value.length()+1;
+                            
+                            metal.setMaterial(value);
+                            
+                            value = meatalStr.substring(strIndex, meatalStr.indexOf("@",strIndex));
+                            
+                            strIndex=strIndex+value.length()+1;
+                            
+                            metal.setThickness(value);
+                            
+                            value = meatalStr.substring(strIndex, meatalStr.indexOf("@",strIndex));
+                            
+                            strIndex=strIndex+value.length()+1;
+                            
+                            metal.setHeight(value);
+                            
+                            value = meatalStr.substring(strIndex, meatalStr.indexOf("@",strIndex));
+                            
+                            strIndex=strIndex+value.length()+1;
+                            
+                            metal.setWidth(value);
+                            
+                            value = meatalStr.substring(strIndex, meatalStr.indexOf("@",strIndex));
+                            
+                            strIndex=strIndex+value.length()+1;
+                            
+                            metal.setWeight(value);
+                            
+                            value = meatalStr.substring(strIndex, meatalStr.indexOf("@",strIndex));
+                            
+                            strIndex=strIndex+value.length()+1;
+                            
+                            value = value.substring(2);
+                            
+                            metal.setID(Integer.valueOf(value));
+                            
+                            value = meatalStr.substring(strIndex);
+                            
+                            metal.setAct(value);
+                        }
 
                         
                     }
@@ -268,8 +324,11 @@ public class ConverterDXF extends HttpServlet{
                     //detailList.forEach(item->response.getOutputStream().write(new Gson().toJson(item)));
                     
                     //response.getOutputStream().write(b);
-                    
-                }else{
+                       
+                }else if(onlyMetal){
+                    response.getOutputStream().write((new Gson().toJson(metal)).getBytes("UTF-8"));
+                }
+                else{
                 
 
 
