@@ -18,7 +18,7 @@ public class ServerRun {
     
     	public static void main(String[] args) {
             
-                String version = "1.1.0";
+                String version = "1.2.0";
 
                 int port = 7799;
 

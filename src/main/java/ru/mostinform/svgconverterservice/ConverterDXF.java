@@ -44,6 +44,7 @@ import org.kabeja.svg.SVGGenerator;
 import org.kabeja.xml.SAXGenerator;
 import org.kabeja.xml.SAXPrettyOutputter;
 import org.kabeja.xml.SAXSerializer;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 /**
@@ -63,6 +64,11 @@ public class ConverterDXF extends HttpServlet{
                 //Установим маштабирование
                 int scale = 20;
                 
+                Float imageWidth = 23.870f;
+                
+                Float imageHeight = 5.070f;
+                
+                Float ratio = imageHeight/imageWidth;
 
                 List<Detail> detailList = new ArrayList();
                 
@@ -308,8 +314,10 @@ public class ConverterDXF extends HttpServlet{
                             
                             metal.setAct(value);
                         }
-
                         
+                        //Для печати раскроя уберем текст
+                        text.setAttribute("visibility", "hidden");
+
                     }
       
 
@@ -329,8 +337,6 @@ public class ConverterDXF extends HttpServlet{
                     response.getOutputStream().write((new Gson().toJson(metal)).getBytes("UTF-8"));
                 }
                 else{
-                
-
 
                     //Делаем JPG из SVG
                     TranscoderInput input_svg_image =   new TranscoderInput(doc); 
@@ -341,8 +347,17 @@ public class ConverterDXF extends HttpServlet{
                     // Step-3: Create JPEGTranscoder and define hints
                     JPEGTranscoder my_converter = new JPEGTranscoder();
                     my_converter.addTranscodingHint(JPEGTranscoder.KEY_QUALITY,new Float(1));
-                    my_converter.addTranscodingHint(JPEGTranscoder.KEY_WIDTH, new Float(viewBox[2])*scale);
-                    my_converter.addTranscodingHint(JPEGTranscoder.KEY_HEIGHT, new Float(viewBox[3])*scale);
+                    
+                    if ((new Float(viewBox[3])/new Float(viewBox[2]))<ratio){
+                        
+                        my_converter.addTranscodingHint(JPEGTranscoder.KEY_WIDTH, new Float(viewBox[2])*scale);
+                        my_converter.addTranscodingHint(JPEGTranscoder.KEY_HEIGHT, new Float(viewBox[2])*ratio*scale);
+                        
+                    }
+                    else{
+                        my_converter.addTranscodingHint(JPEGTranscoder.KEY_WIDTH, new Float(viewBox[3])/ratio*scale);
+                        my_converter.addTranscodingHint(JPEGTranscoder.KEY_HEIGHT, new Float(viewBox[3])*scale);
+                    }    
 
                     my_converter.transcode(input_svg_image, output_jpg_image);
 
